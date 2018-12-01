@@ -1,0 +1,30 @@
+**** EVALUATING MACHINE LEARNING MODELS ****
+
+READING CLEANED DATA
+-------------------------------------------
+reading cleaned training data
+reading testing data
+-------------------------------------------
+Evaluating a Linear Regression Model
+LinearRegression(copy_X=True, fit_intercept=True, n_jobs=None,
+         normalize=False)
+Train RMSE for Linear Regression : 3.5734058694031505
+Test RMSE for Linear Regression :  3.478252058031488
+Variance for Linear Regression : 0.09515381137166257
+-------------------------------------------
+Evaluating a Random Forest Model
+RandomForestRegressor(bootstrap=True, criterion='mse', max_depth=None,
+           max_features='auto', max_leaf_nodes=None,
+           min_impurity_decrease=0.0, min_impurity_split=None,
+           min_samples_leaf=1, min_samples_split=2,
+           min_weight_fraction_leaf=0.0, n_estimators=100, n_jobs=-1,
+           oob_score=False, random_state=123, verbose=0, warm_start=False)
+Train RMSE for Random Forest :  1.1834640725189032
+Test RMSE for Random Forest :  3.026599903019465
+Variance for Random Forest :  1.8431358305005618
+-------------------------------------------
+Evaluating a Gradient Boosting Tree Model
+Train RMSE for Light GBM : 2.3765704381286277
+Test RMSE for Light GBM : 2.9359056796839553
+Variance for Light GBM :  0.5593352415553277
+-------------------------------------------

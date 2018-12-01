@@ -1,0 +1,60 @@
+**** DATA CLEANING PROCESS ****
+
+READING DATA
+-------------------------------------------
+reading training data
+parsing datetime in training data
+reading testing data
+parsing datetime in testing data
+-------------------------------------------Test data size: 9914
+
+cleaning training data
+Initial training data size: 5000000
+-------------------------------------------
+removing rows with missing data
+removing data located out of NY City
+removing data below minimum fare amount
+removing data which does not conform the passenger count range (between 1 and 6)
+removing data with coordinates in the sea
+removing data with coordinates at the La Guardia Airport
+removing data with pickup at the JFK Airport
+setting the pickup and dropoff districts to training data and test data
+adding distances between pickups and dropoffs to training data and test data
+parsing pickup datetime date to training data and test data
+-------------------------------------------
+New training data size after cleaning: 4302885
+
+       fare_amount  pickup_longitude  pickup_latitude  dropoff_longitude  \
+count  4302885.000       4302885.000      4302885.000        4302885.000
+mean        10.076           -73.981           40.752            -73.977
+std          7.649             0.026            0.026              0.034
+min          2.500           -74.263           40.570            -74.263
+25%          6.000           -73.993           40.737            -73.992
+50%          8.100           -73.983           40.753            -73.981
+75%         11.700           -73.972           40.766            -73.968
+max        952.000           -72.997           41.697            -73.012
+
+       dropoff_latitude     ...            year       month         day  \
+count       4302885.000     ...     4302885.000 4302885.000 4302885.000
+mean             40.751     ...        2011.731       6.262      15.716
+std               0.032     ...           1.865       3.440       8.683
+min              40.569     ...        2009.000       1.000       1.000
+25%              40.736     ...        2010.000       3.000       8.000
+50%              40.753     ...        2012.000       6.000      16.000
+75%              40.767     ...        2013.000       9.000      23.000
+max              41.691     ...        2015.000      12.000      31.000
+
+          weekday        hour
+count 4302885.000 4302885.000
+mean        3.053      13.487
+std         1.947       6.572
+min         0.000       0.000
+25%         1.000       9.000
+50%         3.000      14.000
+75%         5.000      19.000
+max         6.000      23.000
+
+[8 rows x 14 columns]
+-------------------------------------------
+created a CSV with the training dataset cleaned
+updated test dataset with new data'
