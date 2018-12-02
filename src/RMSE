@@ -22,9 +22,20 @@ RandomForestRegressor(bootstrap=True, criterion='mse', max_depth=None,
 Train RMSE for Random Forest :  1.1834640725189032
 Test RMSE for Random Forest :  3.026599903019465
 Variance for Random Forest :  1.8431358305005618
--------------------------------------------
+------------------------------------------- learning rate 0.05
 Evaluating a Gradient Boosting Tree Model
 Train RMSE for Light GBM : 2.3765704381286277
 Test RMSE for Light GBM : 2.9359056796839553
 Variance for Light GBM :  0.5593352415553277
--------------------------------------------
+------------------------------------------- learning rate 0.025
+Train RMSE for Light GBM : 2.587209075810633
+Test RMSE for Light GBM : 2.925809838526439
+Variance for Light GBM :  0.3386007627158061
+------------------------------------------- learning rate 0.01
+Train RMSE for Light GBM : 2.802937564825725
+Test RMSE for Light GBM : 2.9312716359410547
+Variance for Light GBM :  0.1283340711153298
+------------------------------------------- learning rate 0.001
+Train RMSE for Light GBM : 3.1562500436579177
+Test RMSE for Light GBM : 3.067223854702692
+Variance for Light GBM :  0.08902618895522574

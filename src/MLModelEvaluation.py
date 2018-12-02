@@ -59,8 +59,10 @@ class MLModelEvaluation(object):
 
         # This way, models can be categorized in OVERFITTING or UNDERFITTING
         # Huge variation in the training and validation RMSE  indicates overfitting
-        # We use the RMSE to see the model suitability
+        # We use the RMSE, bias and variance to see the model suitability
         # Root Mean Square Error (RMSE) is the standard deviation of the residuals (prediction errors)
+        # Bias here is a source of error in your model that causes it to over-generalize and underfit your data.
+        # In contrast, variance is sensitivity to noise in the data that causes your model to overfit.
 
         # A good model has low bias and variance (to avoid overfitting)!!
 
@@ -81,13 +83,13 @@ class MLModelEvaluation(object):
 
         # Gradient Boosting tree based algorithm (LightGBM)
         # grows tree vertically while other algorithm grows trees horizontally
-        lgbTreeTestRMSE, lgbTrainRMSE, lgbTreeVariance = self.lgbTreeEvaluation()
+        # lgbTreeTestRMSE, lgbTrainRMSE, lgbTreeVariance = self.lgbTreeEvaluation()
+        #
+        # print("Train RMSE for Light GBM :", lgbTrainRMSE)
+        # print("Test RMSE for Light GBM :", lgbTreeTestRMSE)
+        # print("Variance for Light GBM : ", lgbTreeVariance)
 
-        print("Train RMSE for Light GBM :", lgbTrainRMSE)
-        print("Test RMSE for Light GBM :", lgbTreeTestRMSE)
-        print("Variance for Light GBM : ", lgbTreeVariance)
-
-        # Neural Network
+        # # Neural Network
         neuralNetworkTestRMSE, neuralNetworkTrainRMSE, neuralNetworkVariance = self.neuralNetworkEvaluation()
         print("Train RMSE for Neural Network  :", neuralNetworkTrainRMSE)
         print("Test RMSE for Neural Network  :", neuralNetworkTestRMSE)
@@ -141,7 +143,7 @@ class MLModelEvaluation(object):
 
         # Tuning LightGBM Tree
         parameters = {
-                      'learning_rate': 0.05,
+                      'learning_rate': 0.01,
                       'num_leaves': 100,  # 2^(max_depth) <= num_leaves
                       'max_depth': 20,  # to handle model overfitting
                       'num_trees': 5000,
