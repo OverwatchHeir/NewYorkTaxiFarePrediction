@@ -11,7 +11,10 @@ pd.set_option('display.max_columns', 20)
 pd.set_option('display.width', None)
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
 
-
+# MORE FEATURES POSSIBLE
+# Holidays
+# Driving distance (not air distance)
+# Driving duration
 class DataCleaning(object):
 
     def __init__(self):
@@ -251,6 +254,7 @@ class DataCleaning(object):
                                                                 self.setDistrict(row.dropoff_longitude,
                                                                                  row.dropoff_latitude), axis=1)
 
+    # MORE FEATURES POSSIBLE
     def travel(self, pickup_longitude, pickup_latitude, dropoff_longitude, dropoff_latitude):
         url = 'https://maps.googleapis.com/maps/api/directions/json?'
         key = '&key=XXXXXX'

@@ -1,13 +1,13 @@
-import numpy
-from keras.callbacks import EarlyStopping
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error
-from sklearn.metrics import accuracy_score
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split, cross_val_score, KFold
+from pandas.tseries.holiday import get_calendar, HolidayCalendarFactory, GoodFriday
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.wrappers.scikit_learn import KerasRegressor
+from keras import optimizers
+from keras.callbacks import EarlyStopping
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
 import lightgbm as lgb
 import numpy as np
 import pandas as pd
@@ -20,6 +20,11 @@ pd.set_option('display.width', None)
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
 
 
+# Model parameters
+BATCH_SIZE = 10
+EPOCHS = 100
+LEARNING_RATE = 0.05
+
 class MLModelEvaluation(object):
 
     def __init__(self):
@@ -28,7 +33,7 @@ class MLModelEvaluation(object):
                                 'dropoff_district', 'distance', 'year',
                                 'month', 'day', 'weekday', 'hour']
 
-        self.csvColumnsTest = ['pickup_latitude', 'pickup_longitude',
+        self.csvColumnsTest = [ 'pickup_latitude', 'pickup_longitude',
                                'dropoff_latitude', 'dropoff_longitude', 'passenger_count', 'pickup_district',
                                'dropoff_district', 'distance', 'year',
                                'month', 'day', 'weekday', 'hour']
@@ -58,7 +63,7 @@ class MLModelEvaluation(object):
         # training data , and works on any unseen data.
 
         # This way, models can be categorized in OVERFITTING or UNDERFITTING
-        # Huge variation in the training and validation RMSE  indicates overfitting
+        # Huge variation in the training and validation Results  indicates overfitting
         # We use the RMSE, bias and variance to see the model suitability
         # Root Mean Square Error (RMSE) is the standard deviation of the residuals (prediction errors)
         # Bias here is a source of error in your model that causes it to over-generalize and underfit your data.
@@ -66,6 +71,7 @@ class MLModelEvaluation(object):
 
         # A good model has low bias and variance (to avoid overfitting)!!
 
+        # COMMENT IF NOT USING
         # Linear Regression Model
         # linearRegressionTestRMSE, linearRegressionTrainRMSE, \
         #     linearRegressionVariance = self.linearRegressionEvaluation()
@@ -74,6 +80,7 @@ class MLModelEvaluation(object):
         # print("Test RMSE for Linear Regression : ", linearRegressionTestRMSE)
         # print("Variance for Linear Regression :", linearRegressionVariance)
 
+        # COMMENT IF NOT USING
         # Ramdom Forest Model
         # randomForestTestRMSE, randomForestTrainRMSE, randomForestVariance = self.randomForestEvaluation()
         #
@@ -81,21 +88,22 @@ class MLModelEvaluation(object):
         # print("Test RMSE for Random Forest : ", randomForestTestRMSE)
         # print("Variance for Random Forest : ", randomForestVariance)
 
+        # COMMENT IF NOT USING
         # Gradient Boosting tree based algorithm (LightGBM)
         # grows tree vertically while other algorithm grows trees horizontally
-        # lgbTreeTestRMSE, lgbTrainRMSE, lgbTreeVariance = self.lgbTreeEvaluation()
-        #
-        # print("Train RMSE for Light GBM :", lgbTrainRMSE)
-        # print("Test RMSE for Light GBM :", lgbTreeTestRMSE)
-        # print("Variance for Light GBM : ", lgbTreeVariance)
+        lgbTreeTestRMSE, lgbTrainRMSE, lgbTreeVariance = self.lgbTreeEvaluation()
 
-        # # Neural Network
-        neuralNetworkTestRMSE, neuralNetworkTrainRMSE, neuralNetworkVariance = self.neuralNetworkEvaluation()
-        print("Train RMSE for Neural Network  :", neuralNetworkTrainRMSE)
-        print("Test RMSE for Neural Network  :", neuralNetworkTestRMSE)
-        print("Variance for Neural Network : ", neuralNetworkVariance)
+        print("Train RMSE for Light GBM :", lgbTrainRMSE)
+        print("Test RMSE for Light GBM :", lgbTreeTestRMSE)
+        print("Variance for Light GBM : ", lgbTreeVariance)
 
-        # self.generateSubmission()
+
+        #  Neural Network  FURTHER IMPORVEMENTS - NOT USING
+        # neuralNetworkTestRMSE, neuralNetworkTrainRMSE, neuralNetworkVariance = self.neuralNetworkEvaluation()
+        # print("Train RMSE for Neural Network  :", neuralNetworkTrainRMSE)
+        # print("Test RMSE for Neural Network  :", neuralNetworkTestRMSE)
+        # print("Variance for Neural Network : ", neuralNetworkVariance)
+
 
     def compute_rmse(self, predicted, actual):
         return np.sqrt(mean_squared_error(predicted, actual))
@@ -156,56 +164,18 @@ class MLModelEvaluation(object):
                          early_stopping_rounds=20, stratified=False)
 
         lgbBoost = lgb.train(parameters, train_data, len(results['rmse-mean']))
+
         predictionTest = lgbBoost.predict(self.X_test, num_iteration=lgbBoost.best_iteration)
         predictionTrain = lgbBoost.predict(self.X_train, num_iteration=lgbBoost.best_iteration)
+        predictionSubmission = lgbBoost.predict(self.dataTest[self.csvColumnsTest].values,
+                                                num_iteration=lgbBoost.best_iteration)
 
         lgbTrainRMSE = self.compute_rmse(predictionTrain, self.y_train)
         lgbTreeTestRMSE = self.compute_rmse(predictionTest, self.y_test)
         lgbTreeVariance = self.compute_variance(lgbTrainRMSE, lgbTreeTestRMSE)
 
-        return lgbTreeTestRMSE, lgbTrainRMSE, lgbTreeVariance
-
-    def neuralNetworkEvaluation(self):
-        print('-------------------------------------------')
-        print('Evaluating a Neural Network Model')
-
-        def nn_model():
-            model = Sequential()
-            # input layer
-            # columns except pickup_datetime
-
-            # hidden layer
-            model.add(Dense(13, input_dim=13, activation='relu'))
-
-            # output layer
-            model.add(Dense(1, activation='linear'))
-
-            # ADAM optimization algorithm is used and a mean squared error loss function is optimized
-            model.compile(loss='mean_squared_error', optimizer='adam')
-
-            return model
-
-        estimator = KerasRegressor(build_fn=nn_model, nb_epoch=100, batch_size=5, verbose=1)
-        early_stop = EarlyStopping(monitor='val_loss', patience=2, verbose=1)
-        estimator.fit(self.X_train, self.y_train, epochs=100, verbose=1, callbacks=[early_stop])
-
-        predictionTrain = estimator.predict(self.X_train)
-        predictionTest = estimator.predict(self.X_test)
-
-        neuralNetworkTrainRMSE = self.compute_rmse(predictionTrain, self.y_train)
-        neuralNetworkTestRMSE = self.compute_rmse(predictionTest, self.y_test)
-        neuralNetworkVariance = self.compute_variance(neuralNetworkTrainRMSE, neuralNetworkTestRMSE)
-
-        return neuralNetworkTestRMSE, neuralNetworkTrainRMSE, neuralNetworkVariance
-
-    def generateSubmission(self):
-        # We use the algorithm with the lowest RMSE to predict the fare amount of the ride
-        X_test = self.dataTest.drop(['pickup_datetime'], axis=1)
-        randomForest = RandomForestRegressor(n_estimators=150, n_jobs=-1)
-        prediction = randomForest.predict(X_test)
-
         submission = pd.DataFrame({'key': self.dataTest.key,
-                                   'fare_amount': prediction,
+                                   'fare_amount': predictionSubmission,
                                    'distance': self.dataTest.distance,
                                    'pickup_latitude': self.dataTest.pickup_latitude,
                                    'pickup_longitude': self.dataTest.pickup_longitude,
@@ -219,4 +189,47 @@ class MLModelEvaluation(object):
                                                'dropoff_latitude',
                                                'dropoff_longitude'
                                                ])
-        submission.to_csv('../input/results.csv', index=False)
+        submission.to_csv('../output/results.csv', index=False)
+
+        return lgbTreeTestRMSE, lgbTrainRMSE, lgbTreeVariance
+
+    # FURTHER IMPROVEMENTS
+    def neuralNetworkEvaluation(self):
+        print('-------------------------------------------')
+        print('Evaluating a Neural Network Model')
+
+        def nn_model():
+            model = Sequential()
+            # input layer
+            # columns except pickup_datetime
+
+            # hidden layer
+            model.add(Dense(13, input_dim=13, activation='relu'))
+            model.add(Dense(6, activation='relu'))
+
+            # output layer
+            model.add(Dense(1, activation='linear'))
+
+            # ADAM optimization algorithm is used and a mean squared error loss function is optimized
+            adam = optimizers.adam(lr=LEARNING_RATE)
+            model.compile(loss='mean_squared_error', optimizer=adam, metrics=['accuracy'])
+
+            return model
+
+        estimator = KerasRegressor(build_fn=nn_model, nb_epoch=EPOCHS, batch_size= BATCH_SIZE, verbose=2)
+        early_stop = EarlyStopping(monitor='val_loss', patience=5, verbose=1)
+        estimator.fit(self.X_train, self.y_train, epochs=EPOCHS, validation_data=(self.X_test, self.y_test), verbose=2,
+                      callbacks=[early_stop])
+
+        predictionTrain = estimator.predict(self.X_train)
+        predictionTest = estimator.predict(self.X_test)
+
+        neuralNetworkTrainRMSE = self.compute_rmse(predictionTrain, self.y_train)
+        neuralNetworkTestRMSE = self.compute_rmse(predictionTest, self.y_test)
+        neuralNetworkVariance = self.compute_variance(neuralNetworkTrainRMSE, neuralNetworkTestRMSE)
+
+        return neuralNetworkTestRMSE, neuralNetworkTrainRMSE, neuralNetworkVariance
+
+
+
+
